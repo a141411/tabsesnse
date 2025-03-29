@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>موقع تحميل الصور</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" acrel="stylesheet">
+    <!-- تحميل خط Tajawal مسبقًا -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2e86de;
@@ -15,17 +18,18 @@
             --light-color: #f5f6fa;
             --success-color: #26de81;
             --danger-color: #fc5c65;
-            --base-font-size: 1rem; /* حجم الخط الأساسي */
+            --base-font-size: 1rem;
         }
         
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Tajawal', sans-serif !important;
         }
         
         body {
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', sans-serif !important;
             background-color: var(--light-color);
             color: var(--dark-color);
             line-height: 1.6;
@@ -71,7 +75,7 @@
         }
         
         h1 {
-            font-size: clamp(1.25rem, 4vw, 1.75rem); /* حجم الخط يتكيف مع عرض الشاشة */
+            font-size: clamp(1.25rem, 4vw, 1.75rem);
             font-weight: 700;
             margin: 0 1rem;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -107,7 +111,7 @@
             margin-bottom: 0.75rem;
             font-weight: 700;
             color: var(--dark-color);
-            font-size: clamp(0.9rem, 3vw, 1rem); /* حجم الخط يتكيف مع عرض الشاشة */
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
         
         input[type="text"] {
@@ -115,8 +119,7 @@
             padding: 0.75rem 1rem;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: clamp(0.9rem, 3vw, 1rem); /* حجم الخط يتكيف مع عرض الشاشة */
-            font-family: 'Tajawal', sans-serif;
+            font-size: clamp(0.9rem, 3vw, 1rem);
             transition: all 0.3s ease;
             background-color: #f9f9f9;
         }
@@ -140,9 +143,8 @@
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            font-size: clamp(0.9rem, 3vw, 1rem); /* حجم الخط يتكيف مع عرض الشاشة */
+            font-size: clamp(0.9rem, 3vw, 1rem);
             font-weight: 700;
-            font-family: 'Tajawal', sans-serif;
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.3s ease;
@@ -221,13 +223,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: clamp(1rem, 4vw, 1.5rem); /* حجم الخط يتكيف مع عرض الشاشة */
+            font-size: clamp(1rem, 4vw, 1.5rem);
             font-weight: 700;
             text-align: center;
             width: 90%;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
             padding: 0.5rem;
             transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif !important;
         }
         
         .hidden {
@@ -251,7 +254,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* تأثيرات للشاشات الصغيرة */
         @media (max-width: 480px) {
             :root {
                 --base-font-size: 0.9rem;
@@ -353,7 +355,6 @@
             const cardImage = document.getElementById('card-image');
             let generatedImageUrl = '';
             
-            // تأكد من أن الصورة قد تم تحميلها
             function checkImageLoaded(imgElement) {
                 return new Promise((resolve, reject) => {
                     if (imgElement.complete) {
@@ -375,21 +376,25 @@
                 }
                 
                 try {
-                    // عرض مؤشر التحميل
                     generateBtn.innerHTML = '<span class="loading"></span> جاري إنشاء البطاقة...';
                     generateBtn.disabled = true;
                     
-                    // انتظر حتى يتم تحميل الصورة
                     await checkImageLoaded(cardImage);
                     
-                    // عرض البطاقة
                     nameOverlay.textContent = name;
                     cardContainer.style.display = 'block';
                     setTimeout(() => {
                         cardContainer.style.opacity = '1';
                     }, 10);
                     
-                    // استخدام html2canvas لالتقاط الصورة
+                    // إنشاء عنصر style ديناميكيًا لضمان تطبيق الخط
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+                        * { font-family: 'Tajawal', sans-serif !important; }
+                    `;
+                    document.head.appendChild(style);
+                    
                     const canvas = await html2canvas(cardContainer, {
                         allowTaint: true,
                         useCORS: true,
@@ -398,32 +403,28 @@
                         onclone: function(clonedDoc) {
                             clonedDoc.getElementById('card-container').style.display = 'block';
                             clonedDoc.getElementById('card-container').style.opacity = '1';
+                            clonedDoc.head.appendChild(style.cloneNode(true));
                         }
                     });
                     
-                    // حفظ رابط الصورة للمشاركة
                     generatedImageUrl = canvas.toDataURL('image/png');
                     
-                    // إنشاء رابط للتحميل
                     const link = document.createElement('a');
                     link.download = `بطاقة_معايدة_${name}.png`;
                     link.href = generatedImageUrl;
                     link.click();
                     
-                    // إظهار زر المشاركة عبر واتساب
                     whatsappBtn.classList.remove('hidden');
                     
                 } catch (error) {
                     alert('حدث خطأ أثناء إنشاء الصورة، يرجى المحاولة مرة أخرى');
                     console.error('Error generating image:', error);
                 } finally {
-                    // استعادة حالة الزر الأصلية
                     generateBtn.innerHTML = originalBtnText;
                     generateBtn.disabled = false;
                 }
             });
             
-            // زر المشاركة عبر واتساب
             whatsappBtn.addEventListener('click', function() {
                 if (!generatedImageUrl) {
                     alert('الرجاء إنشاء البطاقة أولاً');
